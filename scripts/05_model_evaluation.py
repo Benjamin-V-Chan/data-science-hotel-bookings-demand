@@ -30,3 +30,38 @@ def save_metrics(metrics):
     with open('outputs/evaluation/metrics.json', 'w') as f:
         json.dump(metrics, f, indent=2)
 
+def plot_roc(y, probs):
+    fpr, tpr, _ = roc_curve(y, probs)
+    plt.figure()
+    plt.plot(fpr, tpr, label='ROC curve')
+    plt.plot([0,1],[0,1], linestyle='--')
+    plt.xlabel('False Positive Rate')
+    plt.ylabel('True Positive Rate')
+    plt.title('ROC Curve')
+    plt.legend()
+    plt.savefig('outputs/evaluation/roc_curve.png')
+    plt.close()
+
+def plot_confmat(y, preds):
+    cm = confusion_matrix(y, preds)
+    plt.figure()
+    plt.imshow(cm, cmap='Blues')
+    plt.colorbar()
+    plt.xlabel('Predicted')
+    plt.ylabel('Actual')
+    plt.title('Confusion Matrix')
+    for i in range(cm.shape[0]):
+        for j in range(cm.shape[1]):
+            plt.text(j, i, cm[i,j], ha='center', va='center')
+    plt.savefig('outputs/evaluation/confusion_matrix.png')
+    plt.close()
+
+def main():
+    model, X_test, y_test = load_all()
+    preds, probs, metrics = evaluate(model, X_test, y_test)
+    save_metrics(metrics)
+    plot_roc(y_test, probs)
+    plot_confmat(y_test, preds)
+
+if __name__ == '__main__':
+    main()
